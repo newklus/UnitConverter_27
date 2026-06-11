@@ -74,18 +74,18 @@ python -m pytest tests/ -v
 | 우선순위 | 스멜 | 탐지 기준 (휴리스틱) |
 |----------|------|----------------------|
 | **P0** | **ECB 위반** | entity→boundary/control import · E001~E005 emit · 계층 역전 |
-| **P0** | **Magic Number** | `constants.py` 밖 반복 리터럴 (34, 3.28084, 4, 16 등) |
-| **P1** | **Duplicated Code** | 동일 로직·포맷 문자열 2곳+ (locate/solve/grid 순회 등) |
+| **P0** | **Magic Number** | `constants.py` 밖 반복 리터럴 (3.28084, 1.09361 등) |
+| **P1** | **Duplicated Code** | 동일 로직·포맷 문자열 2곳+ (`round`·3줄 포맷 등) |
 | **P1** | **Feature Envy** | 함수가 다른 모듈 데이터·상수만 다루며 자기 책임 없음 |
-| **P1** | **Mysterious Name** | `a`, `tmp`, `x`, `grid_g1` 외 의미 불명 식별자 (도메인 용어 불일치) |
+| **P1** | **Mysterious Name** | `a`, `tmp`, `x` 등 의미 불명 식별자 (meter/feet/yard 도메인 용어 불일치) |
 | **P2** | **Long Method** | 본문 **>25줄** 또는 분기·책임 3개+ (테스트 Arrange+Act+Assert 혼재) |
 
 ### ECB · 프로젝트 특화 (P0)
 
 | 위반 | 예 |
 |------|-----|
-| entity → boundary | `entity/locate.py`가 `UnitConverter` import |
-| entity → control/CLI | I/O·`input()`·`capsys` in `src/entity/` |
+| src → boundary 역전 | `unit_convert.py`가 `UnitConverter` import |
+| src → CLI | I/O·`input()`·`capsys` in `src/unit_convert.py` |
 | E001~E005 | `raise E001` · `return "E002"` — dict/문자열 계약 위반 |
 | golden 우회 | `.approved.txt` 수동 편집 흔적 (탐지 시 보고만) |
 
@@ -93,7 +93,6 @@ python -m pytest tests/ -v
 
 | 위치 | SSOT |
 |------|------|
-| `src/entity/` | `entity/constants.py` |
 | `src/unit_convert.py` | `src/constants.py` |
 | tests | golden **literal 허용** · production 복붙은 P1 |
 
@@ -140,13 +139,13 @@ Track: Logic+UI
 | P | 유형 | 위치 | 요약 | Budget (파일/클래스/메서드) |
 |---|------|------|------|---------------------------|
 | P0 | Magic Number | src/unit_convert.py | (스텁 — GREEN 후 재점검) | — |
-| P1 | Duplicated Code | tests/entity/*.py | grid sanity assert 패턴 | 2/0/0 |
+| P1 | Duplicated Code | tests/test_unit_convert.py | 3줄 golden assert 패턴 | 1/0/0 |
 
 ## /refactor-safe 후보 (1~3)
 | # | P | 대상 | 리팩터 의도 | Budget |
 |---|---|------|-------------|--------|
 | 1 | P0 | src/constants.py + unit_convert | METER_TO_* SSOT 추출 | 2/0/2 |
-| 2 | P1 | entity/locate + solve | blank index 헬퍼 공통화 | 2/0/1 |
+| 2 | P1 | unit_convert | 3줄 포맷 헬퍼 공통화 | 2/0/1 |
 
 ## 다음
 - **P0 후보 1개**만 골라 `/refactor-safe` 실행
@@ -196,8 +195,7 @@ Track: Logic+UI
 | 영역 | 흔한 스멜 |
 |------|-----------|
 | `unit_convert.py` | 스텁 · Magic Number( GREEN 후 ) · Long Method(3줄 포맷) |
-| `entity/` | locate/solve grid 순회 중복 · constants 미사용 |
-| `tests/` | fixture sanity assert 중복 · approval 포맷 문자열 분산 |
+| `tests/` | golden assert 중복 · approval 포맷 문자열 분산 |
 | `UnitConverter.py` | boundary Feature Envy(entity 미호출) · CLI golden 분리 |
 
 - **현재 T1 FAILED** → refactor-smell **중단** (전부 PASS 전제).

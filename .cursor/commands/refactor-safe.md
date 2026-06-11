@@ -35,7 +35,7 @@ Track: Logic+UI
 | 추출 | 출처 |
 |------|------|
 | **스멜·P** | smell 표 · 후보 #1 (없으면 Duplicated Code·Magic Number 휴리스틱) |
-| **대상 파일** | smell 후보 · `src/entity/` · `src/unit_convert.py` |
+| **대상 파일** | smell 후보 · `src/unit_convert.py` · `UnitConverter.py` |
 | **Budget** | smell 표 — 기본 **파일≤3 · 클래스≤1 · 메서드≤3** |
 | **Test ID** | 관련 TC · entity / UnitConverter |
 
@@ -84,7 +84,7 @@ python -m pytest tests/ -v
 | 허용 | 금지 |
 |------|------|
 | extract method · import 정리 · 중복 제거 | assert 완화 · skip · xfail |
-| `entity/validation.py` 등 **구조** 파일 추가 | 동작·golden·API 계약 변경 |
+| `src/format.py` 등 **구조** 파일 추가 | 동작·golden·API 계약 변경 |
 | tests **import 경로**만 수정 | `.approved.txt` 수동 편집 |
 | | E001~E005 emit · ECB 신규 |
 | | Budget 초과 · 다중 smell 동시 해결 |
@@ -92,17 +92,17 @@ python -m pytest tests/ -v
 
 ---
 
-## 예시 (UnitConverter_27 · entity)
+## 예시 (UnitConverter_27)
 
 | 스멜 | Extract | Budget |
 |------|---------|--------|
-| Duplicated Code — 10선 합 4곳 | `sum_line` · `magic_line_indices` → `validation.py` | 2파일 / 2메서드 |
+| Duplicated Code — `round(…, 1)` 3곳 | `_format_display(value)` → `src/format.py` | 2파일 / 1메서드 |
 | Magic Number | `METER_TO_FEET` → `src/constants.py` | 2파일 / 0클래스 |
 
 ```python
-# validation.py — extract SSOT
-def sum_line(grid, indices): ...
-def magic_line_indices(): ...  # 4행+4열+2대각=10선
+# format.py — extract SSOT
+def format_display(value: float) -> float:
+    return round(value, DISPLAY_DECIMALS)
 ```
 
 ---
@@ -111,7 +111,7 @@ def magic_line_indices(): ...  # 4행+4열+2대각=10선
 
 ```bash
 python -m pytest tests/ -v
-python -m pytest tests/entity/ -v
+python -m pytest tests/test_unit_convert.py -v
 ```
 
 **회귀 실패:** assert 완화 **금지** — 리팩터 롤백 또는 구현 수정 후 재실행.
@@ -128,14 +128,14 @@ Track: Logic+UI
 ## Refactor Safe
 | 스멜 | Extract | Budget |
 |------|---------|--------|
-| Duplicated Code | sum_line, magic_line_indices | 2파일/2메서드 |
+| Duplicated Code | format_display | 2파일/1메서드 |
 
 ## pytest
 - `python -m pytest tests/ -v` → N passed (회귀 없음)
 
 ## 변경 파일
-- src/entity/validation.py (신규)
-- src/entity/solve.py
+- src/format.py (신규)
+- src/unit_convert.py
 
 ## golden
 - 변경 없음 · matched 유지
@@ -159,5 +159,5 @@ Track: Logic+UI
 
 ## Skill 참조
 
-> **unit_converter-tdd** — Budget · ECB · constants · 10선 `MAGIC_SUM=34`  
+> **unit_converter-tdd** — Budget · ECB · `src/constants.py` · 표시 1자리  
 > **unit_converter-DOC** — ARRR 1사이클 완료 시 `/export-session`

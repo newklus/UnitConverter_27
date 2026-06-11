@@ -86,6 +86,7 @@ deactivate
 
 | NN | 주제 | Report | Transcript |
 |----|------|--------|------------|
+| 10 | T2 RED Test Plan (`/red-test-plan`) | [Report/10.REPORT.md](Report/10.REPORT.md) | [Prompting/10.Transcript.md](Prompting/10.Transcript.md) |
 | 09 | unit_converter Skills · Command SSOT | [Report/09.REPORT.md](Report/09.REPORT.md) | [Prompting/09.Export-Transcript.md](Prompting/09.Export-Transcript.md) |
 | 08 | ARRR Harness · Skills · Refactor | [Report/08.REPORT.md](Report/08.REPORT.md) | [Prompting/08.Transcript.md](Prompting/08.Transcript.md) |
 | 07 | ARRR Commands · entity TDD · Golden Master | [Report/07.REPORT.md](Report/07.REPORT.md) | [Prompting/07.Transcript.md](Prompting/07.Transcript.md) |

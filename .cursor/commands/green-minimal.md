@@ -35,7 +35,7 @@ Track: Logic
 | 항목 | 내용 |
 |------|------|
 | **선행** | `/tdd-red` 완료 — 대상 Test ID **assert RED** (또는 skeleton → `/tdd-red` 후) |
-| **산출물** | `src/`(·필요 시 `entity/`) **최소** production 코드 + tests에서 **`pytest.fail` 제거·assert 유지** |
+| **산출물** | `src/` **최소** production 코드 + tests에서 **`pytest.fail` 제거·assert 유지** |
 | **범위** | **이번 RED 묶음 Test ID 1개(또는 플랜에 묶인 동일 묶음)** 만 |
 | **다음 단계** | 다음 RED 묶음 또는 `/refactor` (별도 Command · 본 Phase 아님) |
 
@@ -59,7 +59,7 @@ Track: Logic
 | # | 단계 | 작업 |
 |---|------|------|
 | 1 | **RED 재확인** | 대상 Test ID만 pytest → **FAILED** (의도된 RED) 확인 |
-| 2 | **constants SSOT** | 매직넘버·하드코딩 **금지** — `entity/constants.py` 또는 `src/constants.py`에 상수 정의·import |
+| 2 | **constants SSOT** | 매직넘버·하드코딩 **금지** — `src/constants.py`에 상수 정의·import |
 | 3 | **src/ 최소 구현** | **이번 Test ID 통과에 필요한 최소** 코드만 (다른 ID 선행 구현 금지) |
 | 4 | **tests 정리** | `pytest.fail("RED: …")` **제거** · `/tdd-red` assert **유지·복원** (완화 금지) |
 | 5 | **PASS 확인** | 대상 테스트 **PASSED** + **회귀** (같은 파일·전체 `pytest`) |
@@ -68,7 +68,7 @@ Track: Logic
 ### RED 재확인 명령 (예)
 
 ```bash
-pytest tests/entity/test_d_loc_01.py::test_d_loc_01_random_number_input -v
+pytest tests/test_unit_convert.py::test_t2_meter_2_5_display_pass -v
 ```
 
 **기대:** FAILED (assert 또는 `pytest.fail`).
@@ -77,10 +77,10 @@ pytest tests/entity/test_d_loc_01.py::test_d_loc_01_random_number_input -v
 
 ```bash
 # 단일 Test ID
-pytest tests/entity/test_d_loc_01.py::test_d_loc_01_random_number_input -v
+pytest tests/test_unit_convert.py::test_t2_meter_2_5_display_pass -v
 
 # 파일 전체 (동일 RED 파일 회귀)
-pytest tests/entity/test_d_loc_01.py -v
+pytest tests/test_unit_convert.py -v
 ```
 
 ---
@@ -89,12 +89,11 @@ pytest tests/entity/test_d_loc_01.py -v
 
 | 규칙 | 내용 |
 |------|------|
-| **금지** | 함수 본문·테스트에 `34`, `3.28084`, `1.09361` 등 **리터럴 반복** |
-| **허용** | `constants.py` 한 곳 정의 → entity·src에서 **import** |
-| **Magic Square** | `entity/constants.py` — `MAGIC_SUM`, `GRID_SIZE`, `BLANK_COUNT` 등 |
-| **UnitConverter_27** | `src/constants.py` — `METER_TO_FEET`, `METER_TO_YARD`, `DISPLAY_DECIMALS` 등 |
+| **금지** | 함수 본문·테스트에 `3.28084`, `1.09361` 등 **리터럴 반복** |
+| **허용** | `src/constants.py` 한 곳 정의 → `src/`에서 **import** |
+| **UnitConverter_27** | `METER_TO_FEET`, `METER_TO_YARD`, `DISPLAY_DECIMALS` 등 |
 
-- constants **없으면 GREEN 중 생성** (`src/` 또는 `entity/` — 프로젝트 레이아웃 따름).
+- constants **없으면 GREEN 중 생성** (`src/constants.py`).
 - tests는 **golden 값** SSOT; production은 **constants + 계산**만.
 
 ---
@@ -145,7 +144,7 @@ if user_input < 0:
 | 규칙 | 내용 |
 |------|------|
 | **1커밋 = 1 RED 묶음** | Test ID 단위 메시지 (예: `green: T1 negative input fail`) |
-| **포함** | `src/` · `entity/` · 해당 tests assert 정리 |
+| **포함** | `src/` · 해당 tests assert 정리 |
 | **미요청** | `git commit` · `push` **실행하지 않음** |
 
 ---
@@ -196,7 +195,8 @@ Track: Logic
 | RED 묶음 | 최소 GREEN 범위 |
 |----------|-----------------|
 | **T1** | `user_input < 0` → `status: fail`, `failed_lines` |
-| **D-LOC-01** | `unit_convert(2.5)` → pass 3줄 (1자리) — **T1과 별도 묶음이면 T1 선행 GREEN 금지(이미 PASS면 유지)** |
+| **T2** | `unit_convert(2.5)` → pass 3줄 (1자리) — **T1과 별도 묶음이면 T1 선행 GREEN 금지(이미 PASS면 유지)** |
+| **T3** | `unit_convert(1)` → pass 3줄 golden |
 | **U-IN-01/02** | `Layer: boundary` · `UnitConverter.py` 입력 검증만 |
 
 - `pythonpath = ["src"]` — `from unit_convert import unit_convert`
@@ -206,6 +206,6 @@ Track: Logic
 
 ## Skill 참조
 
-> **unit_converter-tdd** Skill이 있으면 **자동 따름** — `entity/constants.py` · 계층 import 규칙 · Test ID별 최소 GREEN 범위.
+> **unit_converter-tdd** Skill이 있으면 **자동 따름** — `src/constants.py` · 계층 import 규칙 · Test ID별 최소 GREEN 범위.
 
 Skill 없음 → 본 Command + `tests/` assert + `.cursorrules`.

@@ -147,20 +147,7 @@ Golden: `UPDATE_GOLDEN=1 pytest …::test_*_golden -v` (PowerShell: `$env:UPDATE
 
 ---
 
-## 11. entity 보조 (실습 확장)
-
-프로젝트 `src/entity/` — Magic Square lab · ARRR Command와 **별도 RED 묶음**.
-
-| 상수 | 값 |
-|------|-----|
-| `GRID_SIZE` | 16 |
-| `MAGIC_SUM` | 34 |
-
-`tests/conftest.py` · `grid_g1` — entity TC 전용.
-
----
-
-## 12. 보고 형식
+## 11. 보고 형식
 
 Command별 템플릿은 각 `.cursor/commands/*.md` **보고 형식** 따름.  
 Export: **unit_converter-DOC** Skill · `/export-session`.

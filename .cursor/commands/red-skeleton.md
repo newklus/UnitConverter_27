@@ -6,7 +6,7 @@
 
 SSOT: `/red-test-plan` 산출 **>** `docs/PRD.md` **>** `.cursorrules` **>** `README.md`
 
-**Skill:** `unit_converter-tdd` — grid_g1 · constants · Test ID 네이밍.
+**Skill:** `unit_converter-tdd` — constants · Test ID 네이밍.
 
 ---
 
@@ -48,7 +48,7 @@ Track: Logic
 
 | 추출 항목 | 출처 |
 |-----------|------|
-| **Test ID** | red-test-plan C2C · Track B (예: `D-LOC-01`, `U-IN-01`) |
+| **Test ID** | red-test-plan C2C · Track B (예: `T2`, `U-IN-01`) |
 | **함수명** | 플랜 블록 3 · `test_{test_id_snake}` |
 | **파일 경로** | 플랜 블록 3 |
 | **Given / When** | C2C Rule3 |
@@ -68,7 +68,7 @@ Track: Logic
 
 | | |
 |--|--|
-| **허용** | `pytest.fail("RED: D-LOC-01 — blank coords row-major 미구현")` |
+| **허용** | `pytest.fail("RED: T2 — meter 2.5 표시 3줄 pass 미구현")` |
 | **금지** | `assert …` 본문 · `pass` · `return` · 통과 더미 |
 | **금지** | `@pytest.mark.skip` · `xfail` · `pytest.raises` assert |
 
@@ -76,81 +76,32 @@ Track: Logic
 
 ---
 
-## 상수 · conftest (entity · Magic Square)
+## 상수 · conftest (UnitConverter)
 
 **픽스처 데이터만** — Domain 로직 import 금지 (`src/` production 함수 호출 금지는 skeleton에서도 When 생략 시 해당 없음).
 
-### 상수 import
-
-```python
-from entity.constants import MAGIC_SUM, GRID_SIZE, BLANK_COUNT
-# MAGIC_SUM=34 · GRID_SIZE=16(4×4) · BLANK_COUNT=4 — Skill/entity/constants.py SSOT
-```
-
-- **`src/` 수정 금지** — `entity/constants.py`는 **이미 존재**할 때만 import.
-- UnitConverter_27 등 상수 없는 프로젝트: `.cursorrules` golden·리터럴을 Given에만 기술 (constants import **생략**).
-
-### conftest — `tests/conftest.py`
-
-| 픽스처 | 내용 |
-|--------|------|
-| **`grid_g1`** | 4×4 row-major · **0(빈칸) 2개** · unit_converter-tdd Skill SSOT |
-
-```python
-import pytest
-
-@pytest.fixture
-def grid_g1():
-    """4×4 row-major, two blanks (0). Skill SSOT."""
-    return [
-        16,  3,  2, 13,
-         5, 10, 11,  8,
-         9,  6,  7, 12,
-         4, 15, 14,  0,  # 예: (3,3)=0 + 한 칸 더 0 — Skill 정의 따름
-    ]
-```
-
-- skeleton **생성 시** `tests/conftest.py`에 `grid_g1` **없으면 추가** (tests/만).
-- UnitConverter: `grid_g1` **불필요** — conftest 수정 **하지 않음**.
+- **`src/` 수정 금지** — 상수는 GREEN에서 `src/constants.py` 생성.
+- RED skeleton: `.cursorrules` golden·리터럴을 Given에만 기술 (constants import **생략**).
+- UnitConverter: `tests/conftest.py` **불필요** — 순수 함수·literal Given.
 
 ---
 
-## 템플릿 예시 — `test_d_loc_01_blank_coords_row_major`
+## 템플릿 예시 — `test_t2_meter_2_5_display_pass`
 
-Magic Square · Logic · entity · RED 묶음 `D-LOC-01`:
-
-```python
-import pytest
-
-from entity.constants import MAGIC_SUM, GRID_SIZE, BLANK_COUNT
-
-
-def test_d_loc_01_blank_coords_row_major(grid_g1):
-    # Given — 4×4 grid, row-major, two blanks (0); MAGIC_SUM=34
-    assert len(grid_g1) == GRID_SIZE
-    blank_indices = [i for i, v in enumerate(grid_g1) if v == 0]
-    assert len(blank_indices) == 2  # fixture sanity only (skeleton 허용)
-
-    # When — blank_coords_row_major(grid) 호출 (GREEN 전)
-
-    # Then
-    pytest.fail("RED: D-LOC-01 — blank coords row-major 미구현")
-```
-
-**UnitConverter_27 대응 예** (`D-LOC-01` · `unit_convert` · conftest 없음):
+UnitConverter_27 · Logic · entity · RED 묶음 `T2`:
 
 ```python
 import pytest
 
 
-def test_d_loc_01_meter_2_5_display_pass():
+def test_t2_meter_2_5_display_pass():
     # Given — user_input=2.5, golden 3줄 (Rule ③)
     user_input = 2.5
 
     # When — unit_convert(user_input)
 
     # Then
-    pytest.fail("RED: D-LOC-01 — meter 2.5 표시 3줄 pass 미구현")
+    pytest.fail("RED: T2 — meter 2.5 표시 3줄 pass 미구현")
 ```
 
 ---
@@ -160,7 +111,7 @@ def test_d_loc_01_meter_2_5_display_pass():
 1. `/red-test-plan` RED 묶음 Test ID 목록 확인
 2. 플랜 **파일·함수명**에 맞춰 `tests/`에 skeleton 함수 **추가** (기존 assert TC **덮어쓰지 않음** — `/tdd-red` 전 단계)
 3. AAA 주석 + **`pytest.fail` Then 1줄**
-4. Magic Square: `entity.constants` import · `grid_g1` fixture 연결
+4. UnitConverter: literal Given · `from unit_convert import unit_convert` (When 단계)
 5. **`pytest` 실행** → 전부 **FAILED** (fail 메시지) 확인
 6. 보고 형식 출력
 
@@ -182,7 +133,7 @@ Track: Logic
 ## pytest.fail 스켈레톤
 | Test ID | 함수 | FAIL 한 줄 |
 |---------|------|-------------|
-| D-LOC-01 | test_d_loc_01_blank_coords_row_major | RED: D-LOC-01 — blank coords row-major 미구현 |
+| T2 | test_t2_meter_2_5_display_pass | RED: T2 — meter 2.5 표시 3줄 pass 미구현 |
 
 ## pytest 결과
 - 명령: `pytest tests/... -v`
@@ -190,7 +141,7 @@ Track: Logic
 
 ## 변경 파일 (tests/만)
 - tests/test_....py
-- tests/conftest.py (grid_g1 추가 시만)
+- tests/conftest.py (boundary Track 시 capsys 등만)
 
 ## 다음
 - `/tdd-red` — pytest.fail → assert 본문
@@ -202,7 +153,7 @@ Track: Logic
 
 | 금지 | 이유 |
 |------|------|
-| `src/` · `UnitConverter.py` · `entity/` **로직** 수정 | GREEN |
+| `src/` · `UnitConverter.py` **로직** 수정 | GREEN |
 | assert golden **본문** | `/tdd-red` |
 | `pass` · no-op · 통과 더미 | skeleton = 항상 FAIL |
 | skip · xfail | 실패 숨김 |
@@ -222,7 +173,7 @@ Track: Logic
 
 ## Skill 참조
 
-> **unit_converter-tdd** Skill(`.cursor/skills/` 또는 프로젝트 Skill)이 있으면 **자동 따름** — `grid_g1` 정의 · `entity/constants.py` · Test ID 네이밍 · row-major 규칙.
+> **unit_converter-tdd** Skill(`.cursor/skills/` 또는 프로젝트 Skill)이 있으면 **자동 따름** — `src/constants.py` · Test ID 네이밍 · golden 표.
 
 Skill 없음 → 본 Command + `/red-test-plan` + `.cursorrules`만 사용.
 
@@ -230,6 +181,5 @@ Skill 없음 → 본 Command + `/red-test-plan` + `.cursorrules`만 사용.
 
 ## 참고
 
-- skeleton의 fixture sanity `assert`(예: `len(grid_g1)==16`)는 **Given 검증용** — **Then assert golden 아님**
 - 기존 `test_t1_negative_input_fail` 등 **assert TC**는 skeleton이 **교체하지 않음** — 새 Test ID만 추가
-- `pyproject.toml` `pythonpath = ["src"]` — UnitConverter는 `from unit_convert import …` (entity 패키지 없음)
+- `pyproject.toml` `pythonpath = ["src"]` — `from unit_convert import unit_convert`

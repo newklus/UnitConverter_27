@@ -47,7 +47,7 @@ Track: Logic
 
 | 추출 항목 | 출처 |
 |-----------|------|
-| **Test ID** | green-minimal 보고 · PASS TC (예: `D-LOC-01`, `T1`) |
+| **Test ID** | green-minimal 보고 · PASS TC (예: `T1`, `T2`) |
 | **golden id** | Test ID → snake: `d_loc_01`, `t1` |
 | **출력 캡처** | tests assert · API 반환 · CLI stdout |
 | **입력값** | Given — **고정** (랜덤은 `seed` 고정 후 literal SSOT) |
@@ -110,7 +110,7 @@ def assert_matches_golden(actual: str, golden_id: str) -> None:
 | 항목 | 규칙 |
 |------|------|
 | **경로** | `tests/golden/{golden_id}.approved.txt` |
-| **golden_id** | Test ID snake lower: `D-LOC-01` → `d_loc_01` · `T1` → `t1` |
+| **golden_id** | Test ID snake lower: `T1` → `t1` · `T2` → `t2` |
 | **TC 위치** | 기존 PASS TC 옆 또는 `tests/test_approval_{id}.py` |
 | **캡처 대상** | dict → **고정 포맷 문자열** · CLI → stdout strip |
 
@@ -119,7 +119,6 @@ def assert_matches_golden(actual: str, golden_id: str) -> None:
 | Track | 포맷 |
 |-------|------|
 | **Logic · dict** | `status: …\nfailed_lines: …\nlines:\n  …` (키 순·indent SSOT) |
-| **Logic · locate** | `row: {r}\ncol: {c}\n` |
 | **boundary · CLI** | 오류/성공 메시지 **한 줄씩** · trailing newline 일관 |
 | **에러 코드** | `{status, failed_lines}` 문자열 — **E001~E005 emit 금지** · reason 키 고정 |
 
@@ -131,10 +130,10 @@ def assert_matches_golden(actual: str, golden_id: str) -> None:
 
 ```bash
 # 단일 Test ID approval
-UPDATE_GOLDEN=1 pytest tests/entity/test_d_loc_01.py::test_d_loc_01_golden -v
+UPDATE_GOLDEN=1 pytest tests/test_unit_convert.py::test_t1_golden -v
 
 # golden id 묶음
-UPDATE_GOLDEN=1 pytest tests/ -k "golden and d_loc_01" -v
+UPDATE_GOLDEN=1 pytest tests/ -k "golden and t1" -v
 ```
 
 - **기대:** golden 파일 **생성·갱신** · pytest **PASSED** (update 모드는 diff 검사 skip)
@@ -145,8 +144,7 @@ UPDATE_GOLDEN=1 pytest tests/ -k "golden and d_loc_01" -v
 ## 4. matched 확인 (UPDATE_GOLDEN 없음)
 
 ```bash
-pytest tests/entity/test_d_loc_01.py::test_d_loc_01_golden -v
-pytest tests/golden/ -v  # approval TC 포함 시
+pytest tests/test_unit_convert.py::test_t1_golden -v
 pytest tests/ -v -k golden
 ```
 
@@ -155,26 +153,7 @@ pytest tests/ -v -k golden
 
 ---
 
-## TC 예시 — D-LOC-01
-
-```python
-from entity.locate import locate_value
-from tests._approval import assert_matches_golden
-
-
-def test_d_loc_01_golden(grid_g1):
-    # Given — 고정 입력 (seed(0) → user_input=14)
-    user_input = 14
-
-    # When
-    result = locate_value(grid_g1, user_input)
-    actual = f"row: {result['row']}\ncol: {result['col']}\n"
-
-    # Then — Approval
-    assert_matches_golden(actual, "d_loc_01")
-```
-
-**UnitConverter T1 예:**
+## TC 예시 — T1
 
 ```python
 actual = f"status: {result['status']}\nfailed_lines: {result['failed_lines']}\n"
@@ -219,11 +198,11 @@ Track: Logic
 ## Golden Master
 | Test ID | golden 경로 | matched |
 |---------|-------------|---------|
-| D-LOC-01 | tests/golden/d_loc_01.approved.txt | ✅ matched |
+| T1 | tests/golden/t1.approved.txt | ✅ matched |
 
 ## pytest
-- 생성: `UPDATE_GOLDEN=1 pytest …::test_d_loc_01_golden -v` → passed
-- 검증: `pytest …::test_d_loc_01_golden -v` → passed (UPDATE_GOLDEN 없음)
+- 생성: `UPDATE_GOLDEN=1 pytest …::test_t1_golden -v` → passed
+- 검증: `pytest …::test_t1_golden -v` → passed (UPDATE_GOLDEN 없음)
 
 ## diff 요약
 - (matched) diff 없음
@@ -231,8 +210,8 @@ Track: Logic
 
 ## 변경 파일
 - tests/_approval.py (신규 시)
-- tests/golden/d_loc_01.approved.txt
-- tests/entity/test_d_loc_01.py (approval TC 추가)
+- tests/golden/t1.approved.txt
+- tests/test_unit_convert.py (approval TC 추가)
 
 ## 다음
 - 다음 Test ID `/golden-master` 또는 RED 묶음
@@ -256,8 +235,8 @@ Track: Logic
 | Test ID | golden_id | 캡처 내용 |
 |---------|-----------|-----------|
 | T1 | `t1` | `status: fail` · `failed_lines: [{'reason': 'negative_input', …}]` |
-| D-LOC-01 | `d_loc_01` | `row` / `col` (고정 입력 14) |
-| meter 2.5 (예정) | `d_loc_01` 또는 `meter_2_5` | 3줄 표시 golden (Rule ③) |
+| T2 | `t2` | pass 3줄 표시 golden (Rule ③) |
+| T3 | `t3` | `meter:1` 3줄 golden |
 
 - 표시 golden 1자리: `.cursorrules` Rule ⑦
 - CLI boundary: stdout 전체 · 오류 메시지 SSOT (`UnitConverter.py` 표)
@@ -266,6 +245,6 @@ Track: Logic
 
 ## Skill 참조
 
-> **unit_converter-tdd** Skill이 있으면 **자동 따름** — golden 경로 · row/col 포맷 · grid fixture · Test ID ↔ golden_id 매핑.
+> **unit_converter-tdd** Skill이 있으면 **자동 따름** — golden 경로 · dict/stdout 포맷 · Test ID ↔ golden_id 매핑.
 
 Skill 없음 → 본 Command + PASS TC assert + `.cursorrules`.
