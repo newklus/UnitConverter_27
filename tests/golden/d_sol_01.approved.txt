@@ -1,0 +1,3 @@
+status: success
+step: a
+blanks: [5, 15]

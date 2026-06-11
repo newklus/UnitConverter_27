@@ -81,3 +81,13 @@ deactivate
    - AI를 어떻게 활용했나? 도움이 된 순간과 한계는?
    - TC를 추가해보면서 개선에 미친 영향, TC 작성 팁
    - 클린코드와 리팩토링에서 느낀 장점과 어려운점
+
+## Session Reports
+
+| NN | 주제 | Report | Transcript |
+|----|------|--------|------------|
+| 09 | unit_converter Skills · Command SSOT | [Report/09.REPORT.md](Report/09.REPORT.md) | [Prompting/09.Export-Transcript.md](Prompting/09.Export-Transcript.md) |
+| 08 | ARRR Harness · Skills · Refactor | [Report/08.REPORT.md](Report/08.REPORT.md) | [Prompting/08.Transcript.md](Prompting/08.Transcript.md) |
+| 07 | ARRR Commands · entity TDD · Golden Master | [Report/07.REPORT.md](Report/07.REPORT.md) | [Prompting/07.Transcript.md](Prompting/07.Transcript.md) |
+| 06 | Export-session 연속 실행 | [Report/06.REPORT.md](Report/06.REPORT.md) | [Prompting/06.Export-Transcript.md](Prompting/06.Export-Transcript.md) |
+| 05 | Export-session 자동 추출 | [Report/05.REPORT.md](Report/05.REPORT.md) | [Prompting/05.Export-Transcript.md](Prompting/05.Export-Transcript.md) |

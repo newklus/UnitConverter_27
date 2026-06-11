@@ -1,0 +1,126 @@
+# UnitConverter_27 — Cursor Rules (세션 3)
+
+## README 범위·로드맵
+
+- **세션 3 = README Activities 3** (TC 0.5h): 변환·입력 검증 **테스트** + `unit_convert` TDD.
+- **Activities 2** (OCP·SRP·입력 검증 **구현**) · **Activities 4** (YAML/JSON·동적 cubit·출력 포맷) → **이후 세션**. 세션 3에서 제안·구현 금지.
+- **8계층 미래:** Identity, Workflow, Domain Model, Integration → 세션 4+.
+- Mom Test·워크북: `Report/STEP3_세션3_워크북.md`.
+
+## 규칙 (SSOT)
+
+**우선순위:** `tests/` golden **>** `.cursorrules` **>** README 예시 **>** 워크북 서술. 충돌 시 **1자리 표시 / 정밀 TC 분리** 우선.
+
+| # | Rule |
+|---|------|
+| ① | **기준 = meter**. README 상수: `1 m = 3.28084 ft`, `1 m = 1.09361 yd` (5자리). feet/yard는 meter 기반. |
+| ② | CLI 입력 `단위:값`. **음수·잘못된 형식·미지 단위 거부** (README §품질). |
+| ③ | **출력 = 소수 1자리** (README 예시). 내부 계산은 풀 정밀도. |
+| ④ | **검증 순서:** `meter:1` → `yard:1` → **역관계** (`1÷1.09361 ≈ 0.9144`). |
+| ⑤ | **TC 분리:** 표시 TC / 정밀 TC(「정확히 계산」). **0.01 차이 = 반올림**(버그 아님) — 테스트·주석에 명시. |
+| ⑥ | **맞다/틀리다 = pytest green** = Mom Test **제출 판정**. |
+| ⑦ | **반올림:** 풀 정밀도 계산 후 `round(값, 1)` (표시·golden). |
+| ⑧ | **출력 줄 형식:** `{입력값} {입력단위} = {변환값} {대상단위}` — CLI는 **입력 단위 유지**, `unit_convert` API는 meter 입력 전제(`{v} meter = …` 3줄). |
+
+### 성공 기준 (워크북 §3)
+
+1. `meter:2.5` → 8.2 ft, 2.7 yd 표시 TC — 수동 5군데 확인 불필요.
+2. `meter:1`→`yard:1` 왕복 · `1 yard = 3 feet` · 표시/정밀 TC 분리 · 0.01=반올림 문서화.
+3. 입력 검증 TC + `meter:1` golden — **pytest green = 제출 확신**.
+
+### 하지 않을 것 (세션 3)
+
+- float 그대로 출력(8.2021…) · 「정확히」= **표시도 5자리**만 해석.
+- OCP/YAML/JSON/동적 cubit/출력 포맷 3종 **구현** · inch/cm UX · GUI.
+- 「Mom Test = README 전부」 혼동 — STEP 1 쇼핑 페르소나는 **참고만**.
+
+## Command
+
+```bash
+python UnitConverter.py
+pytest
+pytest -k "meter25 or meter1 or yard1"
+```
+
+- `pyproject.toml`: `pythonpath = ["src"]`.
+- Test Loop: **Red**(5자리·불일치) → **Green**(1자리+TC) → **Refactor**(선택) → `pytest`.
+
+## 구현
+
+| 파일 | 역할 | 세션 3 |
+|------|------|--------|
+| `UnitConverter.py` | CLI — 3단위 **3줄** 변환 · 입력 검증 3종 | GREEN 대상 |
+| `src/unit_convert.py` | API — meter 숫자 → `{status, failed_lines}` | 스텁 → GREEN |
+| `tests/test_unit_convert.py` | `unit_convert` 표시 TC | RED→GREEN |
+| `tests/test_unit_converter.py` | CLI golden · 입력 검증 (예정) | RED→GREEN |
+
+**Skill (AI 범위):** README 상수 · 1자리 · `meter:2.5`/`meter:1`/`feet:10`/`yard:1` golden · 입력 검증. **OCP/YAML 금지.**
+
+## 핵심 API (UnitConvert)
+
+```python
+unit_convert(user_input: float) -> {
+    "status": "pass" | "fail" | "incomplete",
+    "failed_lines": [...],
+}
+```
+
+- `user_input`: meter 값. 예: `2.5`, `1`.
+- **출력 3줄** (Rule ⑧ meter 전제, 1자리): `{v} meter = {m} meter` · `= {ft} feet` · `= {yd} yard`
+- `pass`: `user_input >= 0` 且 3줄 golden 일치 — `failed_lines: []`
+- `fail`: `user_input < 0` 或 줄 불일치
+- `incomplete`: 스텁·미구현·NaN
+
+## 테스트
+
+| 종류 | 파일 | 대상 |
+|------|------|------|
+| **표시 TC** | `tests/test_unit_convert.py` | `user_input` 2.5, 1, 0, 음수 |
+| **CLI golden** | `tests/test_unit_converter.py` (예정) | 아래 표 |
+| **입력 검증** | 위 CLI TC | 음수, `meter2.5`, unknown unit |
+| **정밀 TC** | 표시와 **분리** | `2.5`→ft≈8.2021 · `yard:1`→m≈0.9144 · `1÷1.09361` 역관계 |
+
+### 표시 golden (1자리, Rule ⑦)
+
+**`unit_convert` / `meter:*` (prefix = meter):**
+
+| 입력 | 기대 3줄 |
+|------|----------|
+| `2.5` / `meter:2.5` | `2.5 meter = 2.5 meter` · `2.5 meter = 8.2 feet` · `2.5 meter = 2.7 yard` |
+| `1` / `meter:1` | `1 meter = 1.0 meter` · `1 meter = 3.3 feet` · `1 meter = 1.1 yard` |
+
+**CLI (prefix = 입력 단위, Rule ⑧):**
+
+| 입력 | 기대 3줄 |
+|------|----------|
+| `feet:10` | `10 feet = 3.0 meter` · `10 feet = 10.0 feet` · `10 feet = 3.3 yard` |
+| `yard:1` | `1 yard = 0.9 meter` · `1 yard = 3.0 feet` · `1 yard = 1.0 yard` |
+
+**정밀 TC (표시 밖):** `yard:1` meter≈0.9144 · `1 yard = 3 feet` · `1÷1.09361≈0.9144`.
+
+### CLI 오류 메시지 (SSOT — `UnitConverter.py`)
+
+| 조건 | 메시지 |
+|------|--------|
+| 콜론 없음 (`meter2.5`) | `Invalid format. Use unit:value (ex: meter:2.5)` |
+| 숫자 아님 | `Invalid number: {value_str}` |
+| unknown unit | `Unknown unit: {unit}` |
+| **음수** | 거부 (메시지는 **tests/ golden** — README §품질, 구현 GREEN 시 확정) |
+
+### TDD (엄격)
+
+RED → GREEN → REFACTOR. **한 Phase만.**
+
+| Phase | 수정 허용 | 금지 |
+|-------|-----------|------|
+| **RED** | `tests/` | `src/` · `UnitConverter.py` |
+| **GREEN** | `src/` · `UnitConverter.py` (최소) | assert 완화 |
+| **REFACTOR** | 구조 정리 | 동작·테스트 의미 변경 |
+
+금지: skip, xfail, RED에서 production 선행.
+
+## AI 응답 규칙
+
+- **한국어**. TDD 시 첫 줄 `Phase: RED|GREEN|REFACTOR`.
+- 범위 밖(OCP/SRP 구현, YAML, GUI, inch/cm UX) 제안 금지 — 로드맵·「하지 않을 것」만.
+- 최소 diff. **git commit/push**는 사용자 요청 시만.
